@@ -2,24 +2,32 @@ import time
 import pyautogui, keyboard
 from pynput.mouse import Listener as MouseListener
 from pynput.keyboard import Listener as KeyboardListener
-from src.ConfigManager import append_mouse_position, sequence
+from src.ConfigManager import *
 
+word = ""
 
 def on_move(x, y):
     print(x, y)
 
 def on_click(x, y, button, pressed):
+    global word
     if pressed == True:
         record_mouse_position(x, y)
+        append_text_input(word)
+        word = ""
 
 def on_scroll(x, y, dx, dy):
     print(x, y, dx, dy)
 
 def on_press(key):
+    global word
     try:
-        print(f'Key {key.char} pressed')
+        word = word + key.char
     except AttributeError:
-        print(f'Special key {key} pressed')
+        if key.name == 'space':
+            word = word + ' '
+        else:
+            pass
 
 def record_mouse_position(x, y):
     append_mouse_position(x, y)
@@ -34,7 +42,6 @@ def RecordActions():
     try:
         while True:
             if keyboard.is_pressed('ctrl+q'):
-                print("pressed!")
                 time.sleep(0.3)
                 break
 
