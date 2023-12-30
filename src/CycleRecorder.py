@@ -10,11 +10,8 @@ def on_move(x, y):
     print(x, y)
 
 def on_click(x, y, button, pressed):
-    global word
     if pressed == True:
         record_mouse_position(x, y)
-        append_text_input(word)
-        word = ""
 
 def on_scroll(x, y, dx, dy):
     print(x, y, dx, dy)
@@ -24,10 +21,11 @@ def on_press(key):
     try:
         word = word + key.char
     except AttributeError:
+        if key.name == 'f2':
+            append_text_input(word)
+            word = ""
         if key.name == 'space':
             word = word + ' '
-        else:
-            pass
 
 def record_mouse_position(x, y):
     append_mouse_position(x, y)
