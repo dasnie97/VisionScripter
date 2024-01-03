@@ -23,7 +23,7 @@ def AppendRecord(line:str):
     entryTime = AssureProperTimeFormat(entryTime)
     nameAndSurname = ""
     for i in range(length - 2):
-        nameAndSurname += splitted[length - 3 - i] + ' '
+        nameAndSurname += splitted[length - 3 - i].capitalize() + ' '
     nameAndSurname = nameAndSurname.strip()
     converted.append((nameAndSurname, entryTime, exitTime))
 
