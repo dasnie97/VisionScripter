@@ -2,16 +2,36 @@ import tkinter as tk
 from tkinter import END, ttk
 from tkinter.filedialog import askopenfile
 from tkinter.font import Font
-from InputConverter import *
+from CreateSequence import CreateSequence
+from CycleRecorder import RecordActions
+from InputConverter import converted, Convert
 from pynput.keyboard import Listener as KeyboardListener
+
+from Repeater import execute_step
 
 class MainWindow:
     def __init__(self) -> None:
         self.counter = 0
+        self.file_loaded = False
+        self.sequence_learned = False
+        self.ready_to_go = False
         self.setup_window()
-    
+
     def setup_window(self):
         root = tk.Tk()
+
+        self.configure_window_basis(root)
+        self.configure_window_widgets(root)
+
+        keyboard_listener = KeyboardListener(on_press=self.key_press)
+        keyboard_listener.start()
+
+        root.mainloop()
+
+        keyboard_listener.stop()
+        keyboard_listener.join()
+
+    def configure_window_basis(self, root):
         root.title("AutoClicker")
 
         window_width = 300
@@ -43,10 +63,12 @@ class MainWindow:
         root.rowconfigure(3, weight=1)
         root.rowconfigure(4, weight=1)
 
+    def configure_window_widgets(self, root):
         s = ttk.Style()
         s.configure('TFrame', background='green')
 
-        frame = ttk.Frame(root, width=100, height=50)
+        frame = ttk.Frame(root, borderwidth=1, width=90, height=80)
+        frame.grid_propagate(0)
         frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=1)
         frame.rowconfigure(1, weight=1)
@@ -57,61 +79,91 @@ class MainWindow:
         self.entryTimeLabel.grid(row=1, column=0)
         self.exitTimeLabel = ttk.Label(frame, text="")
         self.exitTimeLabel.grid(row=2, column=0)
-        frame.grid(column=5, row=2, sticky=tk.N)
+
+        frame.grid(column=5, row=1)
 
         self.input_file_text = tk.Text(root, height=7, width=10)
         self.input_file_text.grid(column=0, row=1, sticky=tk.EW, padx=5, pady=5, columnspan=3, rowspan=3)
-        myFont = Font(family="Times New Roman", size=10)
-        self.input_file_text.configure(font=myFont)
+        self.input_file_text.configure(font=Font(family="Times New Roman", size=10))
+        self.input_file_text["state"] = tk.DISABLED
         
-        ttk.Label(root, text="Status").grid(column=5, row=0, sticky=tk.NE, padx=5, pady=5)
-        ttk.Label(root, text="Do wpisania:").grid(column=5, row=1, padx=5, pady=5)
-        ttk.Button(root, text="Wpisz (F2)", command=self.insert_record).grid(column=0, row=4, sticky=tk.EW, padx=5, pady=5)
-        ttk.Button(root, text="Zakończ (F8)", command=self.stop_sequence).grid(column=5, row=4, sticky=tk.EW, padx=5, pady=5)
-        ttk.Button(root, text="Wybierz plik", command=self.choose_file).grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
-        ttk.Button(root, text="Naucz sekwencji", command=self.stop_sequence).grid(column=1, row=0, sticky=tk.NW, padx=5, pady=5)
+        self.status_label = ttk.Label(root, text="")
+        self.status_label.grid(column=5, row=0, sticky=tk.NE, padx=5, pady=5)
 
-        keyboard_listener = KeyboardListener(on_press=self.key_press)
-        keyboard_listener.start()
+        record_to_be_inserted_label = ttk.Label(root, text="")
+        record_to_be_inserted_label.grid(column=5, row=1, padx=5, pady=5)
 
-        root.mainloop()
+        self.insert_record_button = ttk.Button(root, text="Wpisz (F2)", command=self.insert_record_button_click)
+        self.insert_record_button.grid(column=0, row=4, sticky=tk.EW, padx=5, pady=5)
+        self.insert_record_button["state"] = tk.DISABLED
 
-        keyboard_listener.stop()
-        keyboard_listener.join()
+        finish_button = ttk.Button(root, text="Zakończ (F8)", command=self.stop_sequence_button_click)
+        finish_button.grid(column=5, row=4, sticky=tk.EW, padx=5, pady=5)
 
-    def choose_file(self):
-        file = askopenfile()
-        with open(file.name, encoding="utf-8") as f:
-            for line in f:
-                self.input_file_text.insert(END, line.strip() + "\n")
-        Convert(file.name)
-        self.set_data_to_write_labels(0)
+        choose_file_button = ttk.Button(root, text="Wybierz plik", command=self.choose_file_button_click)
+        choose_file_button.grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
         
-    def set_data_to_write_labels(self, index):
-        self.nameAndSurnameLabel.config(text=converted[index][0].replace(" ", "\n"))
-        self.entryTimeLabel.config(text=converted[index][1])
-        self.exitTimeLabel.config(text=converted[index][2])
+        learn_sequence_button = ttk.Button(root, text="Naucz sekwencji", command=self.learn_sequence_button_click)
+        learn_sequence_button.grid(column=1, row=0, sticky=tk.NW, padx=5, pady=5)
 
-    def learn_sequence():
-        file = askopenfile()
-        return file
+    def choose_file_button_click(self):
+        chosen_file = askopenfile()
+        self.read_file_and_write_to_textbox(chosen_file.name)
 
-    def insert_record(self):
+        self.file_loaded = True
+        if self.file_loaded & self.sequence_learned:
+            self.insert_record_button.configure(state=tk.NORMAL)
+
+    def learn_sequence_button_click(self):
+        self.status_label.config(text="Test")
+
+    def insert_record_button_click(self):
         self.counter += 1
         self.set_data_to_write_labels(self.counter)
 
-    def stop_sequence():
+    def stop_sequence_button_click(self):
         file = askopenfile()
         return file
     
     def key_press(self, key):
         try:
             if key.name == 'f2':
-                self.counter += 1
-                self.set_data_to_write_labels(self.counter)
+                if self.ready_to_go:
+                    self.counter += 1
+                    self.set_data_to_write_labels(self.counter)
+                    self.step_over()
+                else:
+                    self.record_sequence()
         except AttributeError:
             pass
 
+    def read_file_and_write_to_textbox(self, file_path):
+        self.input_file_text["state"] = tk.NORMAL
+        with open(file_path, encoding="utf-8") as f:
+            for line in f:
+                self.input_file_text.insert(END, line)
+        self.input_file_text["state"] = tk.DISABLED
+        Convert(file_path)
+        self.sequence = converted
+        self.set_data_to_write_labels(0)
+
+    def set_data_to_write_labels(self, index):
+        if len(self.sequence[index][0]) > 5:
+            self.nameAndSurnameLabel.config(text=self.sequence[index][0].replace(" ", "\n"))
+            self.entryTimeLabel.config(text=self.sequence[index][1])
+            self.exitTimeLabel.config(text=self.sequence[index][2])
+
+    def record_sequence(self):
+        self.sequence = RecordActions()
+        self.sequence = CreateSequence(self.sequence, converted)
+        self.ready_to_go = True
+        self.status_label.config(text="")
+        self.sequence_learned = True
+        if self.file_loaded & self.sequence_learned:
+            self.insert_record_button.config(state=tk.NORMAL)
+
+    def step_over(self):
+        execute_step(self.sequence, self.counter)
 
 test = MainWindow()
 
