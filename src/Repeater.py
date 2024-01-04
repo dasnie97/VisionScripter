@@ -5,6 +5,20 @@ from pynput.keyboard import Controller
 
 stepOver = False
 
+def execute_step(sequence, index):
+    delay = 0.01
+    if isinstance(sequence[index], tuple):
+        pyautogui.moveTo(*sequence[index])
+        time.sleep(delay)
+        pyautogui.click(clicks=3)
+        time.sleep(delay)
+    if isinstance(sequence[index], str):
+        time.sleep(delay)
+        Controller().type(sequence[index])
+        time.sleep(delay)
+        pyautogui.press('enter')
+        time.sleep(delay)
+
 def RepeatAction(sequence):
 
     delay = 0.01
