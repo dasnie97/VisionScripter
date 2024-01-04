@@ -1,7 +1,4 @@
-converted = [
-    ("maciej owczarz", "07:00", "08:00"),
-    ("oliwier napiórkowski", "07:20", "08:00")
-]
+converted = []
 
 def Convert(path):
     global converted
