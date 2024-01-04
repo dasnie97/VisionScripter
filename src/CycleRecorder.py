@@ -2,7 +2,7 @@ import time
 import pyautogui, keyboard
 from pynput.mouse import Listener as MouseListener
 from pynput.keyboard import Listener as KeyboardListener
-from src.ConfigManager import *
+from ConfigManager import *
 
 word = ""
 
@@ -39,7 +39,7 @@ def RecordActions():
 
     try:
         while True:
-            if keyboard.is_pressed('ctrl+q'):
+            if keyboard.is_pressed('f2'):
                 time.sleep(0.3)
                 break
 
