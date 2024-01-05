@@ -1,11 +1,12 @@
+import sys
 import tkinter as tk
 from tkinter import END, ttk
 from tkinter.filedialog import askopenfile
 from tkinter.font import Font
-from Helpers import InputConverter, SequenceCreator
+from src.Helpers import InputConverter, SequenceCreator
 from pynput.keyboard import Listener as KeyboardListener
-
-from Repeater import execute_step
+import tkinter.messagebox
+from src.Repeater import execute_step
 
 class MainWindow:
     def __init__(self) -> None:
@@ -31,6 +32,8 @@ class MainWindow:
 
     def configure_window_basis(self, root):
         root.title("AutoClicker")
+
+        root.call('wm', 'attributes', '.', '-topmost', '1')
 
         window_width = 300
         window_height = 200
@@ -62,8 +65,6 @@ class MainWindow:
         root.rowconfigure(4, weight=1)
 
     def configure_window_widgets(self, root):
-        s = ttk.Style()
-        s.configure('TFrame', background='green')
 
         frame = ttk.Frame(root, borderwidth=1, width=90, height=80)
         frame.grid_propagate(0)
@@ -95,7 +96,7 @@ class MainWindow:
         self.insert_record_button.grid(column=0, row=4, sticky=tk.EW, padx=5, pady=5)
         self.insert_record_button["state"] = tk.DISABLED
 
-        finish_button = ttk.Button(root, text="Zakończ (F8)", command=self.stop_sequence_button_click)
+        finish_button = ttk.Button(root, text="Zakończ", command=self.stop_sequence_button_click)
         finish_button.grid(column=5, row=4, sticky=tk.EW, padx=5, pady=5)
 
         choose_file_button = ttk.Button(root, text="Wybierz plik", command=self.choose_file_button_click)
@@ -109,29 +110,6 @@ class MainWindow:
         chosen_file = askopenfile()
         self.read_file_and_write_to_textbox(chosen_file.name)
 
-    def learn_sequence_button_click(self):
-        self.status_label.config(text="Test")
-
-    def insert_record_button_click(self):
-        self.counter += 1
-        self.set_data_to_write_labels(self.counter)
-
-    def stop_sequence_button_click(self):
-        file = askopenfile()
-        return file
-    
-    def key_press(self, key):
-        try:
-            if key.name == 'f2':
-                if self.ready_to_go:
-                    self.counter += 1
-                    self.set_data_to_write_labels(self.counter)
-                    self.step_over()
-                else:
-                    self.record_sequence()
-        except AttributeError:
-            pass
-
     def read_file_and_write_to_textbox(self, file_path):
         self.input_file_text["state"] = tk.NORMAL
         with open(file_path, encoding="utf-8") as f:
@@ -139,22 +117,41 @@ class MainWindow:
                 self.input_file_text.insert(END, line)
         self.input_file_text["state"] = tk.DISABLED
         self._inputConverter.Convert(file_path)
-        self.set_data_to_write_labels(0)
         self.learn_sequence_button["state"] = tk.NORMAL
+        self.set_data_to_write_labels(0)
 
     def set_data_to_write_labels(self, index):
-        self.nameAndSurnameLabel.config(text=self._inputConverter.converted[index].name + "\n" + self._inputConverter.converted[index].surname)
-        self.entryTimeLabel.config(text=self._inputConverter.converted[index].entry_time)
-        self.exitTimeLabel.config(text=self._inputConverter.converted[index].exit_time)
+        if (index)%7 == 0:
+            index = int(index/7)
+            self.nameAndSurnameLabel.config(text=self._inputConverter.converted[index].name + "\n" + self._inputConverter.converted[index].surname)
+            self.entryTimeLabel.config(text=self._inputConverter.converted[index].entry_time)
+            self.exitTimeLabel.config(text=self._inputConverter.converted[index].exit_time)
+
+    def learn_sequence_button_click(self):
+        tkinter.messagebox.showinfo('Rozpocznij uczenie sekwencji','Rozpocznij uczenie sekwencji. Wciśnij F2 gdy będziesz gotów i ponownie F2 gdy skończysz.')
+
+    def insert_record_button_click(self):
+        self.step_over()
+        self.counter += 1
+        self.set_data_to_write_labels(self.counter)
+
+    def stop_sequence_button_click(self):
+        sys.exit()
+    
+    def key_press(self, key):
+        try:
+            if key.name == 'f2':
+                if self.ready_to_go:
+                    self.insert_record_button_click()
+                else:
+                    self.record_sequence()
+        except AttributeError:
+            pass
 
     def record_sequence(self):
         self.sequence = self._sequenceCreator.CreateSequence(self._inputConverter.converted)
         self.ready_to_go = True
-        self.status_label.config(text="")
+        self.insert_record_button.configure(state=tk.NORMAL)
             
     def step_over(self):
         execute_step(self.sequence, self.counter)
-
-test = MainWindow()
-
-#TODO: cleanup and set events
