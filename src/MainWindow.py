@@ -2,8 +2,7 @@ import tkinter as tk
 from tkinter import END, ttk
 from tkinter.filedialog import askopenfile
 from tkinter.font import Font
-from CreateSequence import CreateSequence
-from Helpers import InputConverter, SequenceRecorder
+from Helpers import InputConverter, SequenceCreator
 from pynput.keyboard import Listener as KeyboardListener
 
 from Repeater import execute_step
@@ -11,11 +10,9 @@ from Repeater import execute_step
 class MainWindow:
     def __init__(self) -> None:
         self.counter = 0
-        self.file_loaded = False
-        self.sequence_learned = False
         self.ready_to_go = False
         self._inputConverter = InputConverter()
-        self._sequenceRecorder = SequenceRecorder()
+        self._sequenceCreator = SequenceCreator()
         self.setup_window()
 
     def setup_window(self):
@@ -104,16 +101,13 @@ class MainWindow:
         choose_file_button = ttk.Button(root, text="Wybierz plik", command=self.choose_file_button_click)
         choose_file_button.grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
         
-        learn_sequence_button = ttk.Button(root, text="Naucz sekwencji", command=self.learn_sequence_button_click)
-        learn_sequence_button.grid(column=1, row=0, sticky=tk.NW, padx=5, pady=5)
+        self.learn_sequence_button = ttk.Button(root, text="Naucz sekwencji", command=self.learn_sequence_button_click)
+        self.learn_sequence_button.grid(column=1, row=0, sticky=tk.NW, padx=5, pady=5)
+        self.learn_sequence_button["state"] = tk.DISABLED
 
     def choose_file_button_click(self):
         chosen_file = askopenfile()
         self.read_file_and_write_to_textbox(chosen_file.name)
-
-        self.file_loaded = True
-        if self.file_loaded & self.sequence_learned:
-            self.insert_record_button.configure(state=tk.NORMAL)
 
     def learn_sequence_button_click(self):
         self.status_label.config(text="Test")
@@ -147,6 +141,7 @@ class MainWindow:
         self._inputConverter.Convert(file_path)
         self.sequence = self._inputConverter.converted
         self.set_data_to_write_labels(0)
+        self.learn_sequence_button["state"] = tk.NORMAL
 
     def set_data_to_write_labels(self, index):
         if len(self.sequence[index][0]) > 5:
@@ -155,14 +150,10 @@ class MainWindow:
             self.exitTimeLabel.config(text=self.sequence[index][2])
 
     def record_sequence(self):
-        self.sequence = self._sequenceRecorder.RecordActions()
-        self.sequence = CreateSequence(self.sequence, self._inputConverter.converted)
+        self.sequence = self._sequenceCreator.CreateSequence(self._inputConverter.converted)
         self.ready_to_go = True
         self.status_label.config(text="")
-        self.sequence_learned = True
-        if self.file_loaded & self.sequence_learned:
-            self.insert_record_button.config(state=tk.NORMAL)
-
+            
     def step_over(self):
         execute_step(self.sequence, self.counter)
 
