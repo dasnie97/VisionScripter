@@ -4,7 +4,7 @@ from tkinter.filedialog import askopenfile
 from tkinter.font import Font
 from CreateSequence import CreateSequence
 from CycleRecorder import RecordActions
-from InputConverter import converted, Convert
+from Helpers import InputConverter
 from pynput.keyboard import Listener as KeyboardListener
 
 from Repeater import execute_step
@@ -15,6 +15,7 @@ class MainWindow:
         self.file_loaded = False
         self.sequence_learned = False
         self.ready_to_go = False
+        self._inputConverter = InputConverter()
         self.setup_window()
 
     def setup_window(self):
@@ -143,8 +144,8 @@ class MainWindow:
             for line in f:
                 self.input_file_text.insert(END, line)
         self.input_file_text["state"] = tk.DISABLED
-        Convert(file_path)
-        self.sequence = converted
+        self._inputConverter.Convert(file_path)
+        self.sequence = self._inputConverter.converted
         self.set_data_to_write_labels(0)
 
     def set_data_to_write_labels(self, index):
@@ -155,7 +156,7 @@ class MainWindow:
 
     def record_sequence(self):
         self.sequence = RecordActions()
-        self.sequence = CreateSequence(self.sequence, converted)
+        self.sequence = CreateSequence(self.sequence, self._inputConverter.converted)
         self.ready_to_go = True
         self.status_label.config(text="")
         self.sequence_learned = True

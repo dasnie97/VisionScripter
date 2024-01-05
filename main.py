@@ -1,6 +1,6 @@
 from src.CycleRecorder import RecordActions
 from src.Repeater import RepeatAction
-from src.InputConverter import *
+from Helpers import *
 from src.CreateSequence import *
 
 if __name__ == '__main__':
