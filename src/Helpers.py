@@ -2,6 +2,7 @@ import time
 import keyboard
 from pynput.mouse import Listener as MouseListener
 from pynput.keyboard import Listener as KeyboardListener
+from Models.Presence import Presence
 
 class SequenceCreator:
     def __init__(self) -> None:
@@ -73,18 +74,16 @@ class InputConverter:
     def AppendRecord(self, line:str):
         line = line.strip()
         splitted = line.split(' ')
-        length = len(splitted)
-        exitTime = splitted[length - 1]
+        exitTime = splitted[3]
         exitTime = exitTime.replace('.', ':')
         exitTime = self.AssureProperTimeFormat(exitTime)
-        entryTime = splitted[length - 2]
+        entryTime = splitted[2]
         entryTime = entryTime.replace('.', ':')
         entryTime = self.AssureProperTimeFormat(entryTime)
-        nameAndSurname = ""
-        for i in range(length - 2):
-            nameAndSurname += splitted[length - 3 - i].capitalize() + ' '
-        nameAndSurname = nameAndSurname.strip()
-        self.converted.append((nameAndSurname, entryTime, exitTime))
+        name = splitted[0].capitalize().strip()
+        surname = splitted[1].capitalize().strip()
+        presence = Presence(name, surname, entryTime, exitTime)
+        self.converted.append(presence)
 
     def AssureProperTimeFormat(self, timeString):
         splitted = timeString.split(':')
