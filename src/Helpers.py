@@ -3,10 +3,23 @@ import keyboard
 from pynput.mouse import Listener as MouseListener
 from pynput.keyboard import Listener as KeyboardListener
 
-class SequenceRecorder:
+class SequenceCreator:
     def __init__(self) -> None:
         self.word = ""
         self.sequence = []
+
+    def CreateSequence(self, input:list):
+        self.RecordActions()
+        newList = []
+        for item in input:
+            counter = 0
+            for step in self.sequence:
+                if isinstance(step, str):
+                    newList.append(item[counter])
+                    counter += 1
+                else:
+                    newList.append(step)
+        return newList
 
     def RecordActions(self):
         print("Zacznij ruszać kursorem, klikać i wpisywać tekst. Czynności będą nagrywane, a potem odtworzone. Gdy skończysz cykl wciśnij f2.")
@@ -30,17 +43,15 @@ class SequenceRecorder:
             keyboard_listener.stop()
             keyboard_listener.join()
         
-        return self.sequence
-
-    def append_text_input(self, text):
-        if text != "":
-            self.sequence.append(text)
-
     def on_click(self, x, y, button, pressed):
         if pressed == True:
             self.append_text_input(self.word)
             self.word = ""
             self.sequence.append((x,y))
+
+    def append_text_input(self, text):
+        if text != "":
+            self.sequence.append(text)
 
     def on_press(self, key):
         try:
