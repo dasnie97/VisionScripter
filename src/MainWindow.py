@@ -3,8 +3,7 @@ from tkinter import END, ttk
 from tkinter.filedialog import askopenfile
 from tkinter.font import Font
 from CreateSequence import CreateSequence
-from CycleRecorder import RecordActions
-from Helpers import InputConverter
+from Helpers import InputConverter, SequenceRecorder
 from pynput.keyboard import Listener as KeyboardListener
 
 from Repeater import execute_step
@@ -16,6 +15,7 @@ class MainWindow:
         self.sequence_learned = False
         self.ready_to_go = False
         self._inputConverter = InputConverter()
+        self._sequenceRecorder = SequenceRecorder()
         self.setup_window()
 
     def setup_window(self):
@@ -155,7 +155,7 @@ class MainWindow:
             self.exitTimeLabel.config(text=self.sequence[index][2])
 
     def record_sequence(self):
-        self.sequence = RecordActions()
+        self.sequence = self._sequenceRecorder.RecordActions()
         self.sequence = CreateSequence(self.sequence, self._inputConverter.converted)
         self.ready_to_go = True
         self.status_label.config(text="")
