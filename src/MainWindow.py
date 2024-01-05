@@ -139,15 +139,13 @@ class MainWindow:
                 self.input_file_text.insert(END, line)
         self.input_file_text["state"] = tk.DISABLED
         self._inputConverter.Convert(file_path)
-        self.sequence = self._inputConverter.converted
         self.set_data_to_write_labels(0)
         self.learn_sequence_button["state"] = tk.NORMAL
 
     def set_data_to_write_labels(self, index):
-        if len(self.sequence[index][0]) > 5:
-            self.nameAndSurnameLabel.config(text=self.sequence[index][0].replace(" ", "\n"))
-            self.entryTimeLabel.config(text=self.sequence[index][1])
-            self.exitTimeLabel.config(text=self.sequence[index][2])
+        self.nameAndSurnameLabel.config(text=self._inputConverter.converted[index].name + "\n" + self._inputConverter.converted[index].surname)
+        self.entryTimeLabel.config(text=self._inputConverter.converted[index].entry_time)
+        self.exitTimeLabel.config(text=self._inputConverter.converted[index].exit_time)
 
     def record_sequence(self):
         self.sequence = self._sequenceCreator.CreateSequence(self._inputConverter.converted)
