@@ -2,7 +2,7 @@ import time
 import keyboard
 from pynput.mouse import Listener as MouseListener
 from pynput.keyboard import Listener as KeyboardListener
-from Models.Presence import Presence
+from src.Models.Presence import Presence
 
 class SequenceCreator:
     def __init__(self) -> None:
@@ -12,11 +12,16 @@ class SequenceCreator:
     def CreateSequence(self, input:list):
         self.RecordActions()
         newList = []
-        for item in input:
+        for presence in input:
             counter = 0
             for step in self.sequence:
                 if isinstance(step, str):
-                    newList.append(item[counter])
+                    if counter == 0:
+                        newList.append(presence.surname + " " + presence.name)
+                    elif counter == 1:
+                        newList.append(presence.entry_time)
+                    elif counter == 2:
+                        newList.append(presence.exit_time)
                     counter += 1
                 else:
                     newList.append(step)
@@ -31,8 +36,8 @@ class SequenceCreator:
 
         try:
             while True:
+                time.sleep(0.01)
                 if keyboard.is_pressed('f2'):
-                    time.sleep(0.3)
                     break
 
         except KeyboardInterrupt:
