@@ -3,6 +3,8 @@ import keyboard
 from pynput.mouse import Listener as MouseListener
 from pynput.keyboard import Listener as KeyboardListener
 from src.Models.Presence import Presence
+import pyautogui
+from pynput.keyboard import Controller
 
 class SequenceCreator:
     def __init__(self) -> None:
@@ -99,3 +101,17 @@ class InputConverter:
     def insert_char(self, string, char, index):
         return string[:index] + char + string[index:]
     
+class Executor:
+    def execute_step(self, sequence, index):
+        delay = 0.01
+        if isinstance(sequence[index], tuple):
+            pyautogui.moveTo(*sequence[index])
+            time.sleep(delay)
+            pyautogui.click(clicks=3)
+            time.sleep(delay)
+        if isinstance(sequence[index], str):
+            time.sleep(delay)
+            Controller().type(sequence[index])
+            time.sleep(delay)
+            pyautogui.press('enter')
+            time.sleep(delay)

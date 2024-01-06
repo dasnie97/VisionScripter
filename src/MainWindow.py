@@ -3,31 +3,29 @@ import tkinter as tk
 from tkinter import END, ttk
 from tkinter.filedialog import askopenfile
 from tkinter.font import Font
-from src.Helpers import InputConverter, SequenceCreator
+from src.Helpers import InputConverter, SequenceCreator, Executor
 from pynput.keyboard import Listener as KeyboardListener
 import tkinter.messagebox
-from src.Repeater import execute_step
 
 class MainWindow:
     def __init__(self) -> None:
         self.counter = 0
         self.ready_to_go = False
-        self._inputConverter = InputConverter()
-        self._sequenceCreator = SequenceCreator()
+        self.inputConverter = InputConverter()
+        self.sequenceCreator = SequenceCreator()
+        self.executor = Executor()
         self.setup_window()
 
     def setup_window(self):
-        root = tk.Tk()
-
-        self.configure_window_basis(root)
-        self.configure_window_widgets(root)
-
+        
         keyboard_listener = KeyboardListener(on_press=self.key_press)
         keyboard_listener.start()
 
+        root = tk.Tk()
+        self.configure_window_basis(root)
+        self.configure_window_widgets(root)
         root.mainloop()
 
-        keyboard_listener.stop()
         keyboard_listener.join()
 
     def configure_window_basis(self, root):
@@ -116,16 +114,16 @@ class MainWindow:
             for line in f:
                 self.input_file_text.insert(END, line)
         self.input_file_text["state"] = tk.DISABLED
-        self._inputConverter.Convert(file_path)
+        self.inputConverter.Convert(file_path)
         self.learn_sequence_button["state"] = tk.NORMAL
         self.set_data_to_write_labels(0)
 
     def set_data_to_write_labels(self, index):
         if (index)%7 == 0:
             index = int(index/7)
-            self.nameAndSurnameLabel.config(text=self._inputConverter.converted[index].name + "\n" + self._inputConverter.converted[index].surname)
-            self.entryTimeLabel.config(text=self._inputConverter.converted[index].entry_time)
-            self.exitTimeLabel.config(text=self._inputConverter.converted[index].exit_time)
+            self.nameAndSurnameLabel.config(text=self.inputConverter.converted[index].name + "\n" + self.inputConverter.converted[index].surname)
+            self.entryTimeLabel.config(text=self.inputConverter.converted[index].entry_time)
+            self.exitTimeLabel.config(text=self.inputConverter.converted[index].exit_time)
 
     def learn_sequence_button_click(self):
         tkinter.messagebox.showinfo('Rozpocznij uczenie sekwencji','Rozpocznij uczenie sekwencji. Wciśnij F2 gdy będziesz gotów i ponownie F2 gdy skończysz.')
@@ -149,9 +147,9 @@ class MainWindow:
             pass
 
     def record_sequence(self):
-        self.sequence = self._sequenceCreator.CreateSequence(self._inputConverter.converted)
+        self.sequence = self.sequenceCreator.CreateSequence(self.inputConverter.converted)
         self.ready_to_go = True
         self.insert_record_button.configure(state=tk.NORMAL)
             
     def step_over(self):
-        execute_step(self.sequence, self.counter)
+        self.executor.execute_step(self.sequence, self.counter)
