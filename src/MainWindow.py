@@ -9,7 +9,6 @@ import tkinter.messagebox
 
 class MainWindow:
     def __init__(self) -> None:
-        self.ready_to_go = False
         self.inputConverter = InputConverter()
         self.sequenceCreator = SequenceCreator()
         self.executor = Executor()
@@ -158,7 +157,6 @@ class MainWindow:
 
     def record_sequence(self):
         self.sequenceCreator.sequence = self.sequenceCreator.CreateSequence(self.inputConverter.converted)
-        self.ready_to_go = True
         self.insert_record_button.configure(state=tk.NORMAL)
         self.executor.counter = 7
         self.set_data_to_write_labels(self.executor.counter)
