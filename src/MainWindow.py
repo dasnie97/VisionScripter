@@ -106,7 +106,13 @@ class MainWindow:
 
     def choose_file_button_click(self):
         chosen_file = askopenfile()
-        self.read_file_and_write_to_textbox(chosen_file.name)
+        if chosen_file == None:
+            return
+        try:
+            self.read_file_and_write_to_textbox(chosen_file.name)
+        except:
+            tkinter.messagebox.showinfo('Błąd','Nieprawidłowy plik!')
+        self.counter = 0
 
     def read_file_and_write_to_textbox(self, file_path):
         self.input_file_text["state"] = tk.NORMAL
@@ -129,9 +135,12 @@ class MainWindow:
         tkinter.messagebox.showinfo('Rozpocznij uczenie sekwencji','Rozpocznij uczenie sekwencji. Wciśnij F2 gdy będziesz gotów i ponownie F2 gdy skończysz.')
 
     def insert_record_button_click(self):
-        self.step_over()
-        self.counter += 1
-        self.set_data_to_write_labels(self.counter)
+        if self.counter < len(self.sequence):
+            self.step_over()
+            self.set_data_to_write_labels(self.counter)
+            self.counter += 1
+        else:
+           tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.') 
 
     def stop_sequence_button_click(self):
         sys.exit()
