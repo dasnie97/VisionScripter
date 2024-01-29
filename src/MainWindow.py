@@ -160,3 +160,6 @@ class MainWindow:
         self.insert_record_button.configure(state=tk.NORMAL)
         self.executor.counter = 7
         self.set_data_to_write_labels(self.executor.counter)
+
+
+#TODO: add previous/next button to navigate between records
