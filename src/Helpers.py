@@ -30,7 +30,6 @@ class SequenceCreator:
         return newList
 
     def RecordActions(self):
-        print("Zacznij ruszać kursorem, klikać i wpisywać tekst. Czynności będą nagrywane, a potem odtworzone. Gdy skończysz cykl wciśnij f2.")
         mouse_listener = MouseListener(on_click=self.on_click)
         mouse_listener.start()
         keyboard_listener = KeyboardListener(on_press=self.on_press)
