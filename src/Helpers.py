@@ -102,16 +102,19 @@ class InputConverter:
         return string[:index] + char + string[index:]
     
 class Executor:
-    def execute_step(self, sequence, index):
+    def __init__(self) -> None:
+        self.counter = 0
+
+    def execute_step(self, sequence):
         delay = 0.01
-        if isinstance(sequence[index], tuple):
-            pyautogui.moveTo(*sequence[index])
+        if isinstance(sequence[self.counter], tuple):
+            pyautogui.moveTo(*sequence[self.counter])
             time.sleep(delay)
             pyautogui.click(clicks=3)
             time.sleep(delay)
-        if isinstance(sequence[index], str):
+        if isinstance(sequence[self.counter], str):
             time.sleep(delay)
-            Controller().type(sequence[index])
+            Controller().type(sequence[self.counter])
             time.sleep(delay)
             pyautogui.press('enter')
             time.sleep(delay)

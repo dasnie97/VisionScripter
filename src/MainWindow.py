@@ -1,6 +1,6 @@
 import sys
 import tkinter as tk
-from tkinter import END, ttk
+from tkinter import ttk
 from tkinter.filedialog import askopenfile
 from tkinter.font import Font
 from src.Helpers import InputConverter, SequenceCreator, Executor
@@ -9,7 +9,6 @@ import tkinter.messagebox
 
 class MainWindow:
     def __init__(self) -> None:
-        self.counter = 0
         self.ready_to_go = False
         self.inputConverter = InputConverter()
         self.sequenceCreator = SequenceCreator()
@@ -17,7 +16,6 @@ class MainWindow:
         self.setup_window()
 
     def setup_window(self):
-        
         keyboard_listener = KeyboardListener(on_press=self.key_press)
         keyboard_listener.start()
 
@@ -110,19 +108,19 @@ class MainWindow:
             return
         try:
             self.read_file_and_write_to_textbox(chosen_file.name)
+            self.executor.counter = 0
+            self.inputConverter.Convert(chosen_file.name)
+            self.set_data_to_write_labels(0)
         except:
             tkinter.messagebox.showinfo('Błąd','Nieprawidłowy plik!')
-        self.counter = 0
 
     def read_file_and_write_to_textbox(self, file_path):
         self.input_file_text["state"] = tk.NORMAL
         with open(file_path, encoding="utf-8") as f:
             for line in f:
-                self.input_file_text.insert(END, line)
+                self.input_file_text.insert(tkinter.END, line)
         self.input_file_text["state"] = tk.DISABLED
-        self.inputConverter.Convert(file_path)
         self.learn_sequence_button["state"] = tk.NORMAL
-        self.set_data_to_write_labels(0)
 
     def set_data_to_write_labels(self, index):
         if (index)%7 == 0:
@@ -132,15 +130,18 @@ class MainWindow:
             self.exitTimeLabel.config(text=self.inputConverter.converted[index].exit_time)
 
     def learn_sequence_button_click(self):
-        tkinter.messagebox.showinfo('Rozpocznij uczenie sekwencji','Rozpocznij uczenie sekwencji. Wciśnij F2 gdy będziesz gotów i ponownie F2 gdy skończysz.')
+        tkinter.messagebox.showinfo('Rozpocznij uczenie sekwencji','Wciśnij F2 aby rozpocząć uczenie sekwencji. Wciśnij ponownie F2 gdy skończysz.')
 
     def insert_record_button_click(self):
-        if self.counter < len(self.sequence):
+        if self.executor.counter < len(self.sequenceCreator.sequence):
             self.step_over()
-            self.set_data_to_write_labels(self.counter)
-            self.counter += 1
+            self.set_data_to_write_labels(self.executor.counter)
+            self.executor.counter += 1
         else:
            tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.') 
+    
+    def step_over(self):
+        self.executor.execute_step(self.sequenceCreator.sequence)
 
     def stop_sequence_button_click(self):
         sys.exit()
@@ -148,7 +149,7 @@ class MainWindow:
     def key_press(self, key):
         try:
             if key.name == 'f2':
-                if self.ready_to_go:
+                if len(self.sequenceCreator.sequence) != 0:
                     self.insert_record_button_click()
                 else:
                     self.record_sequence()
@@ -156,11 +157,8 @@ class MainWindow:
             pass
 
     def record_sequence(self):
-        self.sequence = self.sequenceCreator.CreateSequence(self.inputConverter.converted)
+        self.sequenceCreator.sequence = self.sequenceCreator.CreateSequence(self.inputConverter.converted)
         self.ready_to_go = True
         self.insert_record_button.configure(state=tk.NORMAL)
-        self.counter = 7
-        self.set_data_to_write_labels(self.counter)
-            
-    def step_over(self):
-        self.executor.execute_step(self.sequence, self.counter)
+        self.executor.counter = 7
+        self.set_data_to_write_labels(self.executor.counter)
