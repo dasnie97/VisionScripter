@@ -159,6 +159,8 @@ class MainWindow:
         self.sequence = self.sequenceCreator.CreateSequence(self.inputConverter.converted)
         self.ready_to_go = True
         self.insert_record_button.configure(state=tk.NORMAL)
+        self.counter = 7
+        self.set_data_to_write_labels(self.counter)
             
     def step_over(self):
         self.executor.execute_step(self.sequence, self.counter)
