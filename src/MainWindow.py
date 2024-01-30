@@ -61,20 +61,32 @@ class MainWindow:
 
     def configure_window_widgets(self, root):
 
-        frame = ttk.Frame(root, borderwidth=1, width=90, height=80)
-        frame.grid_propagate(0)
-        frame.columnconfigure(0, weight=1)
-        frame.rowconfigure(0, weight=1)
-        frame.rowconfigure(1, weight=1)
-        frame.rowconfigure(2, weight=1)
-        self.nameAndSurnameLabel = ttk.Label(frame, text="")
+        currentRecordFrame = ttk.Frame(root, borderwidth=1, width=90, height=80)
+        currentRecordFrame.grid_propagate(0)
+        currentRecordFrame.columnconfigure(0, weight=1)
+        currentRecordFrame.rowconfigure(0, weight=1)
+        currentRecordFrame.rowconfigure(1, weight=1)
+        currentRecordFrame.rowconfigure(2, weight=1)
+        self.nameAndSurnameLabel = ttk.Label(currentRecordFrame, text="")
         self.nameAndSurnameLabel.grid(row=0, column=0)
-        self.entryTimeLabel = ttk.Label(frame, text="")
+        self.entryTimeLabel = ttk.Label(currentRecordFrame, text="")
         self.entryTimeLabel.grid(row=1, column=0)
-        self.exitTimeLabel = ttk.Label(frame, text="")
+        self.exitTimeLabel = ttk.Label(currentRecordFrame, text="")
         self.exitTimeLabel.grid(row=2, column=0)
+        currentRecordFrame.grid(column=5, row=1)
 
-        frame.grid(column=5, row=1)
+        recordNavigationFrame = ttk.Frame(root, borderwidth=1, width=70, height=30)
+        recordNavigationFrame.grid_propagate(0)
+        recordNavigationFrame.columnconfigure(0, weight=1)
+        recordNavigationFrame.columnconfigure(1, weight=1)
+        recordNavigationFrame.rowconfigure(0, weight=1)
+        self.nextRecordButton = ttk.Button(recordNavigationFrame, text=">", command=self.next_record_button_click)
+        self.nextRecordButton.grid(row=0, column=1)
+        self.nextRecordButton["state"] = tk.DISABLED
+        self.prevRecordButton = ttk.Button(recordNavigationFrame, text="<", command=self.prev_record_button_click)
+        self.prevRecordButton.grid(row=0, column=0)
+        self.prevRecordButton["state"] = tk.DISABLED
+        recordNavigationFrame.grid(column=5, row=0)
 
         self.input_file_text = tk.Text(root, height=7, width=10)
         self.input_file_text.grid(column=0, row=1, sticky=tk.EW, padx=5, pady=5, columnspan=3, rowspan=3)
@@ -100,6 +112,12 @@ class MainWindow:
         self.learn_sequence_button = ttk.Button(root, text="Naucz sekwencji", command=self.learn_sequence_button_click)
         self.learn_sequence_button.grid(column=1, row=0, sticky=tk.NW, padx=5, pady=5)
         self.learn_sequence_button["state"] = tk.DISABLED
+
+    def next_record_button_click(self):
+        pass
+
+    def prev_record_button_click(self):
+        pass
 
     def choose_file_button_click(self):
         chosen_file = askopenfile()
