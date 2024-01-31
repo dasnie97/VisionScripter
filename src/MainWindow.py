@@ -114,10 +114,14 @@ class MainWindow:
         self.learn_sequence_button["state"] = tk.DISABLED
 
     def next_record_button_click(self):
-        pass
+        if self.executor.counter < len(self.sequenceCreator.sequence) - 1:
+            self.executor.counter += 1
+            self.set_data_to_write_labels(self.executor.counter)
 
     def prev_record_button_click(self):
-        pass
+        if self.executor.counter > 0:
+            self.executor.counter -= 1
+            self.set_data_to_write_labels(self.executor.counter)
 
     def choose_file_button_click(self):
         chosen_file = askopenfile()
@@ -150,10 +154,11 @@ class MainWindow:
         tkinter.messagebox.showinfo('Rozpocznij uczenie sekwencji','Wciśnij F2 aby rozpocząć uczenie sekwencji. Wciśnij ponownie F2 gdy skończysz.')
 
     def insert_record_button_click(self):
-        if self.executor.counter < len(self.sequenceCreator.sequence):
+        self.executor.
+        if self.executor.external_iterator < len(self.sequenceCreator.sequence) - 1:
+            self.executor.counter += 1
             self.step_over()
             self.set_data_to_write_labels(self.executor.counter)
-            self.executor.counter += 1
         else:
            tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.') 
     
@@ -174,10 +179,13 @@ class MainWindow:
             pass
 
     def record_sequence(self):
-        self.sequenceCreator.sequence = self.sequenceCreator.CreateSequence(self.inputConverter.converted)
+        self.sequenceCreator.CreateSequence(self.inputConverter.converted)
+        self.executor.convert_sequence(self.sequenceCreator.sequence)
         self.insert_record_button.configure(state=tk.NORMAL)
-        self.executor.counter = 7
+        self.executor.counter += 1
         self.set_data_to_write_labels(self.executor.counter)
+        self.nextRecordButton["state"] = tk.NORMAL
+        self.prevRecordButton["state"] = tk.NORMAL
 
 
 #TODO: add previous/next button to navigate between records

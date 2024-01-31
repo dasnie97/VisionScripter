@@ -11,23 +11,25 @@ class SequenceCreator:
         self.word = ""
         self.sequence = []
 
-    def CreateSequence(self, input:list):
+    def CreateSequence(self, presence_list:list):
         self.RecordActions()
-        newList = []
-        for presence in input:
+        parsed_sequence = []
+        for presence in presence_list:
             counter = 0
+            sequence_step = []
             for step in self.sequence:
                 if isinstance(step, str):
                     if counter == 0:
-                        newList.append(presence.surname + " " + presence.name)
+                        sequence_step.append(presence.surname + " " + presence.name)
                     elif counter == 1:
-                        newList.append(presence.entry_time)
+                        sequence_step.append(presence.entry_time)
                     elif counter == 2:
-                        newList.append(presence.exit_time)
+                        sequence_step.append(presence.exit_time)
                     counter += 1
                 else:
-                    newList.append(step)
-        return newList
+                    sequence_step.append(step)
+            parsed_sequence.append(sequence_step)
+        self.sequence = parsed_sequence
 
     def RecordActions(self):
         mouse_listener = MouseListener(on_click=self.on_click)
@@ -102,18 +104,22 @@ class InputConverter:
     
 class Executor:
     def __init__(self) -> None:
-        self.counter = 0
+        self.internal_iterator = 0
+        self.external_iterator = 0
+
+    def step_over(self, sequence):
+        #TODO: check if iterators reached limits
 
     def execute_step(self, sequence):
         delay = 0.01
-        if isinstance(sequence[self.counter], tuple):
-            pyautogui.moveTo(*sequence[self.counter])
+        if isinstance(sequence[self.external_iterator][self.internal_iterator], tuple):
+            pyautogui.moveTo(*sequence[self.external_iterator][self.internal_iterator])
             time.sleep(delay)
             pyautogui.click(clicks=3)
             time.sleep(delay)
-        if isinstance(sequence[self.counter], str):
+        if isinstance(sequence[self.external_iterator][self.internal_iterator], str):
             time.sleep(delay)
-            Controller().type(sequence[self.counter])
+            Controller().type(sequence[self.external_iterator][self.internal_iterator])
             time.sleep(delay)
             pyautogui.press('enter')
             time.sleep(delay)
