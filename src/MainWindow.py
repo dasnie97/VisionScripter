@@ -37,12 +37,11 @@ class MainWindow:
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
 
-        # find the center point
-        center_x = int(screen_width/2 - window_width / 2)
-        center_y = int(screen_height/2 - window_height / 2)
+        right_x = int(screen_width - 1.5 * window_width)
+        down_y = int(screen_height - 1.5 * window_height)
 
         # set the position of the window to the center of the screen
-        root.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+        root.geometry(f'{window_width}x{window_height}+{right_x}+{down_y}')
         root.resizable(False, False)
         root.iconbitmap('./assets/P.ico')
 
@@ -91,6 +90,7 @@ class MainWindow:
         self.input_file_text = tk.Text(root, height=7, width=10)
         self.input_file_text.grid(column=0, row=1, sticky=tk.EW, padx=5, pady=5, columnspan=3, rowspan=3)
         self.input_file_text.configure(font=Font(family="Times New Roman", size=10))
+        self.input_file_text.tag_configure('highlightline', background='yellow')
         self.input_file_text["state"] = tk.DISABLED
         
         self.status_label = ttk.Label(root, text="")
@@ -114,57 +114,67 @@ class MainWindow:
         self.learn_sequence_button["state"] = tk.DISABLED
 
     def next_record_button_click(self):
-        if self.executor.counter < len(self.sequenceCreator.sequence) - 1:
-            self.executor.counter += 1
-            self.set_data_to_write_labels(self.executor.counter)
+        self.executor.move_to_next_sequence()
+        self.input_file_text.see(f"{self.executor.external_iterator + 3}.end")
+        self.input_file_text.tag_remove('highlightline', '1.0', 'end')
+        self.input_file_text.tag_add('highlightline', f"{self.executor.external_iterator+1}.0", f"{self.executor.external_iterator+2}.0")
+        if self.executor.check_if_limit_reached():
+            tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.')
+            return
+        else:
+            self.set_data_to_write_labels(self.executor.external_iterator)
 
     def prev_record_button_click(self):
-        if self.executor.counter > 0:
-            self.executor.counter -= 1
-            self.set_data_to_write_labels(self.executor.counter)
+        self.executor.move_to_prev_sequence()
+        self.input_file_text.see(f"{self.executor.external_iterator}.end")
+        self.input_file_text.tag_remove('highlightline', '1.0', 'end')
+        self.input_file_text.tag_add('highlightline', f"{self.executor.external_iterator+1}.0", f"{self.executor.external_iterator+2}.0")
+        self.set_data_to_write_labels(self.executor.external_iterator)
 
     def choose_file_button_click(self):
         chosen_file = askopenfile()
         if chosen_file == None:
             return
         try:
-            self.read_file_and_write_to_textbox(chosen_file.name)
-            self.executor.counter = 0
             self.inputConverter.Convert(chosen_file.name)
-            self.set_data_to_write_labels(0)
-        except:
-            tkinter.messagebox.showinfo('Błąd','Nieprawidłowy plik!')
+            self.read_file_and_write_to_textbox(chosen_file.name)
+            self.executor.reset()
+            self.set_data_to_write_labels(self.executor.external_iterator)
+        except Exception as e:
+            if type(e) is ValueError:
+                tkinter.messagebox.showerror('Błąd',f"{str(e)}")
+            else:
+                tkinter.messagebox.showerror('Błąd', 'Nieprawidłowy plik!')
 
     def read_file_and_write_to_textbox(self, file_path):
         self.input_file_text["state"] = tk.NORMAL
+        self.input_file_text.delete('1.0', 'end')
         with open(file_path, encoding="utf-8") as f:
             for line in f:
                 self.input_file_text.insert(tkinter.END, line)
+        self.input_file_text.tag_add('highlightline', '1.0', '2.0')
         self.input_file_text["state"] = tk.DISABLED
         self.learn_sequence_button["state"] = tk.NORMAL
 
     def set_data_to_write_labels(self, index):
-        if (index)%7 == 0:
-            index = int(index/7)
-            self.nameAndSurnameLabel.config(text=self.inputConverter.converted[index].name + "\n" + self.inputConverter.converted[index].surname)
-            self.entryTimeLabel.config(text=self.inputConverter.converted[index].entry_time)
-            self.exitTimeLabel.config(text=self.inputConverter.converted[index].exit_time)
+        self.nameAndSurnameLabel.config(text=self.inputConverter.converted[index].name + "\n" + self.inputConverter.converted[index].surname)
+        self.entryTimeLabel.config(text=self.inputConverter.converted[index].entry_time)
+        self.exitTimeLabel.config(text=self.inputConverter.converted[index].exit_time)
 
     def learn_sequence_button_click(self):
         tkinter.messagebox.showinfo('Rozpocznij uczenie sekwencji','Wciśnij F2 aby rozpocząć uczenie sekwencji. Wciśnij ponownie F2 gdy skończysz.')
 
     def insert_record_button_click(self):
-        self.executor.
-        if self.executor.external_iterator < len(self.sequenceCreator.sequence) - 1:
-            self.executor.counter += 1
-            self.step_over()
-            self.set_data_to_write_labels(self.executor.counter)
+        self.executor.execute_next_step()
+        self.input_file_text.see(f"{self.executor.external_iterator + 3}.end")
+        self.input_file_text.tag_remove('highlightline', '1.0', 'end')
+        self.input_file_text.tag_add('highlightline', f"{self.executor.external_iterator+1}.0", f"{self.executor.external_iterator+2}.0")
+        if self.executor.check_if_limit_reached():
+            tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.')
+            return
         else:
-           tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.') 
+            self.set_data_to_write_labels(self.executor.external_iterator)
     
-    def step_over(self):
-        self.executor.execute_step(self.sequenceCreator.sequence)
-
     def stop_sequence_button_click(self):
         sys.exit()
     
@@ -180,10 +190,10 @@ class MainWindow:
 
     def record_sequence(self):
         self.sequenceCreator.CreateSequence(self.inputConverter.converted)
-        self.executor.convert_sequence(self.sequenceCreator.sequence)
+        self.executor.execution_sequences = self.sequenceCreator.sequence
         self.insert_record_button.configure(state=tk.NORMAL)
-        self.executor.counter += 1
-        self.set_data_to_write_labels(self.executor.counter)
+        self.executor.move_to_next_sequence()
+        self.set_data_to_write_labels(self.executor.external_iterator)
         self.nextRecordButton["state"] = tk.NORMAL
         self.prevRecordButton["state"] = tk.NORMAL
 
