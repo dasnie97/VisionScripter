@@ -77,7 +77,10 @@ class InputConverter:
         self.converted.clear()
         with open(path, encoding="utf-8") as f:
             for line in f:
-                self.AppendRecord(line)
+                try:
+                    self.AppendRecord(line)
+                except Exception as e:
+                    raise ValueError(f"Nieprawidłowe dane w lini\n{line}")
 
     def AppendRecord(self, line:str):
         line = line.strip()
@@ -106,20 +109,49 @@ class Executor:
     def __init__(self) -> None:
         self.internal_iterator = 0
         self.external_iterator = 0
+        self.execution_sequences = []
 
-    def step_over(self, sequence):
-        #TODO: check if iterators reached limits
-
-    def execute_step(self, sequence):
+    def execute_next_step(self):
+        
+        one_sequence_len = len(self.execution_sequences[0])
+        
+        if self.external_iterator < len(self.execution_sequences) and self.internal_iterator < one_sequence_len:
+            self.execute_step()
+            self.internal_iterator += 1
+            if self.internal_iterator == one_sequence_len:
+                self.internal_iterator = 0
+                self.external_iterator += 1
+        
+    def execute_step(self):
         delay = 0.01
-        if isinstance(sequence[self.external_iterator][self.internal_iterator], tuple):
-            pyautogui.moveTo(*sequence[self.external_iterator][self.internal_iterator])
+        if isinstance(self.execution_sequences[self.external_iterator][self.internal_iterator], tuple):
+            pyautogui.moveTo(*self.execution_sequences[self.external_iterator][self.internal_iterator])
             time.sleep(delay)
             pyautogui.click(clicks=3)
             time.sleep(delay)
-        if isinstance(sequence[self.external_iterator][self.internal_iterator], str):
+        if isinstance(self.execution_sequences[self.external_iterator][self.internal_iterator], str):
             time.sleep(delay)
-            Controller().type(sequence[self.external_iterator][self.internal_iterator])
+            Controller().type(self.execution_sequences[self.external_iterator][self.internal_iterator])
             time.sleep(delay)
             pyautogui.press('enter')
             time.sleep(delay)
+
+    def reset(self):
+        self.internal_iterator = 0
+        self.external_iterator = 0
+    
+    def move_to_next_sequence(self):
+        if self.external_iterator < len(self.execution_sequences) - 1:
+            self.external_iterator += 1
+            self.internal_iterator = 0
+
+    def move_to_prev_sequence(self):
+        if self.external_iterator > 0:
+            self.external_iterator -= 1
+            self.internal_iterator = 0
+
+    def check_if_limit_reached(self):
+        if self.external_iterator == len(self.execution_sequences):
+            return True
+        else:
+            return False
