@@ -1,4 +1,5 @@
 import sys
+import time
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import askopenfile
@@ -6,12 +7,14 @@ from tkinter.font import Font
 from src.Helpers import InputConverter, SequenceCreator, Executor
 from pynput.keyboard import Listener as KeyboardListener
 import tkinter.messagebox
+import threading
 
 class MainWindow:
     def __init__(self) -> None:
         self.inputConverter = InputConverter()
         self.sequenceCreator = SequenceCreator()
         self.executor = Executor()
+        self.run_automatically = False
         self.setup_window()
 
     def setup_window(self):
@@ -185,6 +188,12 @@ class MainWindow:
                     self.insert_record_button_click()
                 else:
                     self.record_sequence()
+            if key.name == 'f8':
+                if self.run_automatically == True:
+                    self.run_automatically = False
+                else:
+                    self.run_automatically = True
+                    threading.Thread(target=self.auto_clicker).start()
         except AttributeError:
             pass
 
@@ -197,5 +206,9 @@ class MainWindow:
         self.nextRecordButton["state"] = tk.NORMAL
         self.prevRecordButton["state"] = tk.NORMAL
 
-
-#TODO: add previous/next button to navigate between records
+    def auto_clicker(self):
+        while self.run_automatically:
+            self.insert_record_button_click()
+            time.sleep(0.1)
+            if self.executor.check_if_limit_reached():
+                break
