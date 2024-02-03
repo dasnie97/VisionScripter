@@ -102,9 +102,13 @@ class MainWindow:
         record_to_be_inserted_label = ttk.Label(root, text="")
         record_to_be_inserted_label.grid(column=5, row=1, padx=5, pady=5)
 
-        self.insert_record_button = ttk.Button(root, text="Wpisz (F2)", command=self.insert_record_button_click)
+        self.insert_record_button = ttk.Button(root, text="Wpisz (F2)", command=self.key_press('f2'))
         self.insert_record_button.grid(column=0, row=4, sticky=tk.EW, padx=5, pady=5)
         self.insert_record_button["state"] = tk.DISABLED
+
+        self.auto_run_button = ttk.Button(root, text="Auto (F8)", command=self.key_press('f8'))
+        self.auto_run_button.grid(column=1, row=4, sticky=tk.EW, padx=5, pady=5)
+        self.auto_run_button["state"] = tk.DISABLED
 
         finish_button = ttk.Button(root, text="Zakończ", command=self.stop_sequence_button_click)
         finish_button.grid(column=5, row=4, sticky=tk.EW, padx=5, pady=5)
@@ -191,8 +195,10 @@ class MainWindow:
             if key.name == 'f8':
                 if self.run_automatically == True:
                     self.run_automatically = False
+                    self.auto_run_button["text"] = "Auto (F8)"
                 else:
                     self.run_automatically = True
+                    self.auto_run_button["text"] = "Stop"
                     threading.Thread(target=self.auto_clicker).start()
         except AttributeError:
             pass
@@ -201,6 +207,7 @@ class MainWindow:
         self.sequenceCreator.CreateSequence(self.inputConverter.converted)
         self.executor.execution_sequences = self.sequenceCreator.sequence
         self.insert_record_button.configure(state=tk.NORMAL)
+        self.auto_run_button.configure(state=tk.NORMAL)
         self.executor.move_to_next_sequence()
         self.set_data_to_write_labels(self.executor.external_iterator)
         self.nextRecordButton["state"] = tk.NORMAL
