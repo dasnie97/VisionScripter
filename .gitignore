@@ -162,3 +162,4 @@ cython_debug/
 test.txt
 assets
 VisionScripter.code-workspace
+build.bat
