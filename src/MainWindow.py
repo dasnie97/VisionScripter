@@ -7,6 +7,7 @@ from tkinter.font import Font
 from src.Helpers import InputConverter, SequenceCreator, Executor
 from pynput.keyboard import Listener as KeyboardListener
 import tkinter.messagebox
+import tkinter.scrolledtext as scrolledtext
 import threading
 
 class MainWindow:
@@ -25,8 +26,6 @@ class MainWindow:
         self.configure_window_basis(root)
         self.configure_window_widgets(root)
         root.mainloop()
-
-        keyboard_listener.join()
 
     def configure_window_basis(self, root):
         root.title("AutoClicker")
@@ -63,7 +62,7 @@ class MainWindow:
 
     def configure_window_widgets(self, root):
 
-        currentRecordFrame = ttk.Frame(root, borderwidth=1, width=90, height=80)
+        currentRecordFrame = ttk.Frame(root, borderwidth=1, width=80, height=80)
         currentRecordFrame.grid_propagate(0)
         currentRecordFrame.columnconfigure(0, weight=1)
         currentRecordFrame.rowconfigure(0, weight=1)
@@ -90,8 +89,8 @@ class MainWindow:
         self.prevRecordButton["state"] = tk.DISABLED
         recordNavigationFrame.grid(column=5, row=0)
 
-        self.input_file_text = tk.Text(root, height=7, width=10)
-        self.input_file_text.grid(column=0, row=1, sticky=tk.EW, padx=5, pady=5, columnspan=3, rowspan=3)
+        self.input_file_text = scrolledtext.ScrolledText(root, height=7, width=13)
+        self.input_file_text.grid(column=0, row=1, sticky=tk.EW, padx=3, pady=5, columnspan=4, rowspan=3)
         self.input_file_text.configure(font=Font(family="Times New Roman", size=10))
         self.input_file_text.tag_configure('highlightline', background='yellow')
         self.input_file_text["state"] = tk.DISABLED
@@ -218,4 +217,6 @@ class MainWindow:
             self.insert_record_button_click()
             time.sleep(0.1)
             if self.executor.check_if_limit_reached():
+                self.auto_run_button["text"] = "Auto (F8)"
+                self.run_automatically = False
                 break
