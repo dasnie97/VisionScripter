@@ -3,7 +3,7 @@ import time
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import askopenfile
-from tkinter.font import Font
+from tkinter import font
 from src.Helpers import InputConverter, SequenceCreator, Executor
 from pynput.keyboard import Listener as KeyboardListener
 import tkinter.messagebox
@@ -31,6 +31,13 @@ class MainWindow:
         root.title("AutoClicker")
 
         root.call('wm', 'attributes', '.', '-topmost', '1')
+
+        screen_ratio = 37.79 / root.winfo_fpixels('1c')
+        default_font_size = int(screen_ratio * 10)
+
+        default_font = font.nametofont("TkDefaultFont")
+        default_font.configure(size=default_font_size)
+        root.option_add("*Font", default_font)
 
         window_width = 300
         window_height = 200
@@ -91,7 +98,6 @@ class MainWindow:
 
         self.input_file_text = scrolledtext.ScrolledText(root, height=7, width=13)
         self.input_file_text.grid(column=0, row=1, sticky=tk.EW, padx=3, pady=5, columnspan=4, rowspan=3)
-        self.input_file_text.configure(font=Font(family="Times New Roman", size=10))
         self.input_file_text.tag_configure('highlightline', background='yellow')
         self.input_file_text["state"] = tk.DISABLED
         
