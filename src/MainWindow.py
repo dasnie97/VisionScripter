@@ -205,6 +205,10 @@ class MainWindow:
                     self.run_automatically = True
                     self.auto_run_button["text"] = "Stop"
                     threading.Thread(target=self.auto_clicker).start()
+            if key.name == 'right':
+                self.next_record_button_click()
+            if key.name == 'left':
+                self.prev_record_button_click()
         except AttributeError:
             pass
 
