@@ -126,15 +126,17 @@ class MainWindow:
         self.learn_sequence_button["state"] = tk.DISABLED
 
     def next_record_button_click(self):
-        self.executor.move_to_next_sequence()
-        self.input_file_text.see(f"{self.executor.external_iterator + 3}.end")
-        self.input_file_text.tag_remove('highlightline', '1.0', 'end')
-        self.input_file_text.tag_add('highlightline', f"{self.executor.external_iterator+1}.0", f"{self.executor.external_iterator+2}.0")
-        if self.executor.limit_reached():
-            tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.')
-            return
-        else:
+        try:
+            self.executor.move_to_next_sequence()
+            self.input_file_text.see(f"{self.executor.external_iterator + 3}.end")
+            self.input_file_text.tag_remove('highlightline', '1.0', 'end')
+            self.input_file_text.tag_add('highlightline', f"{self.executor.external_iterator+1}.0", f"{self.executor.external_iterator+2}.0")
             self.set_data_to_write_labels(self.executor.external_iterator)
+        except Exception as e:
+            if type(e) is IndexError:
+                tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.')
+            else:
+                tkinter.messagebox.showinfo('Błąd', 'Wystąpił błąd.')
 
     def prev_record_button_click(self):
         self.executor.move_to_prev_sequence()
@@ -177,15 +179,17 @@ class MainWindow:
         tkinter.messagebox.showinfo('Rozpocznij uczenie sekwencji','Wciśnij F2 aby rozpocząć uczenie sekwencji. Wciśnij ponownie F2 gdy skończysz.')
 
     def insert_record_button_click(self):
-        self.executor.execute_next_step()
-        self.input_file_text.see(f"{self.executor.external_iterator + 3}.end")
-        self.input_file_text.tag_remove('highlightline', '1.0', 'end')
-        self.input_file_text.tag_add('highlightline', f"{self.executor.external_iterator+1}.0", f"{self.executor.external_iterator+2}.0")
-        if self.executor.limit_reached():
-            tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.')
-            return
-        else:
+        try:
+            self.executor.execute_next_step()
+            self.input_file_text.see(f"{self.executor.external_iterator + 3}.end")
+            self.input_file_text.tag_remove('highlightline', '1.0', 'end')
+            self.input_file_text.tag_add('highlightline', f"{self.executor.external_iterator+1}.0", f"{self.executor.external_iterator+2}.0")
             self.set_data_to_write_labels(self.executor.external_iterator)
+        except Exception as e:
+            if type(e) is IndexError:
+                tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.')
+            else:
+                tkinter.messagebox.showinfo('Błąd', 'Wystąpił błąd.')
     
     def stop_sequence_button_click(self):
         sys.exit()
@@ -226,7 +230,7 @@ class MainWindow:
         while self.run_automatically:
             self.insert_record_button_click()
             time.sleep(0.15)
-            if self.executor.limit_reached():
+            if self.executor.external_limit_reached():
                 self.auto_run_button["text"] = "Auto (F8)"
                 self.run_automatically = False
                 break
