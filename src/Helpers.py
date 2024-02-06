@@ -111,15 +111,12 @@ class Executor:
         self.external_iterator = 0
         self.execution_sequences = []
 
-    def execute_next_step(self):
-        one_sequence_len = len(self.execution_sequences[0])
-        
-        if self.external_iterator < len(self.execution_sequences) and self.internal_iterator < one_sequence_len:
+    def execute_next_step(self):        
+        if not self.external_limit_reached():
             self.execute_step()
             self.internal_iterator += 1
-            if self.internal_iterator == one_sequence_len:
-                self.internal_iterator = 0
-                self.external_iterator += 1
+            if self.internal_limit_reached():
+                self.move_to_next_sequence()
         
     def execute_step(self):
         delay = 0.01
@@ -136,7 +133,7 @@ class Executor:
             time.sleep(delay)
     
     def move_to_next_sequence(self):
-        if self.limit_reached():
+        if self.external_limit_reached():
             raise IndexError("Koniec danych")
         else:
             self.external_iterator += 1
@@ -147,8 +144,14 @@ class Executor:
             self.external_iterator -= 1
             self.internal_iterator = 0
 
-    def limit_reached(self):
-        if self.external_iterator == len(self.execution_sequences) - 1:
+    def external_limit_reached(self):
+        if self.external_iterator == len(self.execution_sequences):
+            return True
+        else:
+            return False
+        
+    def internal_limit_reached(self):
+        if self.internal_iterator == len(self.execution_sequences[self.external_iterator]):
             return True
         else:
             return False
