@@ -112,7 +112,6 @@ class Executor:
         self.execution_sequences = []
 
     def execute_next_step(self):
-        
         one_sequence_len = len(self.execution_sequences[0])
         
         if self.external_iterator < len(self.execution_sequences) and self.internal_iterator < one_sequence_len:
@@ -135,13 +134,11 @@ class Executor:
             time.sleep(delay)
             pyautogui.press('enter')
             time.sleep(delay)
-
-    def reset(self):
-        self.internal_iterator = 0
-        self.external_iterator = 0
     
     def move_to_next_sequence(self):
-        if self.external_iterator < len(self.execution_sequences) - 1:
+        if self.limit_reached():
+            raise IndexError("Koniec danych")
+        else:
             self.external_iterator += 1
             self.internal_iterator = 0
 
@@ -150,8 +147,12 @@ class Executor:
             self.external_iterator -= 1
             self.internal_iterator = 0
 
-    def check_if_limit_reached(self):
-        if self.external_iterator == len(self.execution_sequences):
+    def limit_reached(self):
+        if self.external_iterator == len(self.execution_sequences) - 1:
             return True
         else:
             return False
+        
+    def reset(self):
+        self.internal_iterator = 0
+        self.external_iterator = 0
