@@ -130,7 +130,7 @@ class MainWindow:
         self.input_file_text.see(f"{self.executor.external_iterator + 3}.end")
         self.input_file_text.tag_remove('highlightline', '1.0', 'end')
         self.input_file_text.tag_add('highlightline', f"{self.executor.external_iterator+1}.0", f"{self.executor.external_iterator+2}.0")
-        if self.executor.check_if_limit_reached():
+        if self.executor.limit_reached():
             tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.')
             return
         else:
@@ -181,7 +181,7 @@ class MainWindow:
         self.input_file_text.see(f"{self.executor.external_iterator + 3}.end")
         self.input_file_text.tag_remove('highlightline', '1.0', 'end')
         self.input_file_text.tag_add('highlightline', f"{self.executor.external_iterator+1}.0", f"{self.executor.external_iterator+2}.0")
-        if self.executor.check_if_limit_reached():
+        if self.executor.limit_reached():
             tkinter.messagebox.showinfo('Koniec danych', 'Nie ma więcej obecności do wpisania.')
             return
         else:
@@ -213,7 +213,7 @@ class MainWindow:
             pass
 
     def record_sequence(self):
-        self.sequenceCreator.CreateSequence(self.inputConverter.converted)
+        self.sequenceCreator.CreateSequence(self.inputConverter.converted) #TODO reuse existing sequence for new input files
         self.executor.execution_sequences = self.sequenceCreator.sequence
         self.insert_record_button.configure(state=tk.NORMAL)
         self.auto_run_button.configure(state=tk.NORMAL)
@@ -225,8 +225,8 @@ class MainWindow:
     def auto_clicker(self):
         while self.run_automatically:
             self.insert_record_button_click()
-            time.sleep(0.1)
-            if self.executor.check_if_limit_reached():
+            time.sleep(0.15)
+            if self.executor.limit_reached():
                 self.auto_run_button["text"] = "Auto (F8)"
                 self.run_automatically = False
                 break
