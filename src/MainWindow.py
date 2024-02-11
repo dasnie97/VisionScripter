@@ -154,6 +154,9 @@ class MainWindow:
             self.read_file_and_write_to_textbox(chosen_file.name)
             self.executor.reset()
             self.set_data_to_write_labels(self.executor.external_iterator)
+            if self.sequenceCreator.sequence_exists():
+                self.sequenceCreator.CreateSequence(self.inputConverter.converted)
+                self.executor.load_sequences(self.sequenceCreator.sequence)
         except Exception as e:
             if type(e) is ValueError:
                 tkinter.messagebox.showerror('Błąd',f"{str(e)}")
@@ -197,7 +200,7 @@ class MainWindow:
     def key_press(self, key):
         try:
             if key.name == 'f2':
-                if len(self.sequenceCreator.sequence) != 0:
+                if self.sequenceCreator.sequence_exists():
                     self.insert_record_button_click()
                 else:
                     self.record_sequence()
@@ -217,8 +220,9 @@ class MainWindow:
             pass
 
     def record_sequence(self):
+        self.sequenceCreator.RecordActions()
         self.sequenceCreator.CreateSequence(self.inputConverter.converted) #TODO reuse existing sequence for new input files
-        self.executor.execution_sequences = self.sequenceCreator.sequence
+        self.executor.load_sequences(self.sequenceCreator.sequence)
         self.insert_record_button.configure(state=tk.NORMAL)
         self.auto_run_button.configure(state=tk.NORMAL)
         self.executor.move_to_next_sequence()
