@@ -9,15 +9,15 @@ from pynput.keyboard import Controller
 class SequenceCreator:
     def __init__(self) -> None:
         self.word = ""
+        self.pattern_sequence = []
         self.sequence = []
 
     def CreateSequence(self, presence_list:list):
-        self.RecordActions()
         parsed_sequence = []
         for presence in presence_list:
             counter = 0
             sequence_step = []
-            for step in self.sequence:
+            for step in self.pattern_sequence:
                 if isinstance(step, str):
                     if counter == 0:
                         sequence_step.append(presence.surname + " " + presence.name)
@@ -56,11 +56,11 @@ class SequenceCreator:
         if pressed == True:
             self.append_text_input(self.word)
             self.word = ""
-            self.sequence.append((x,y))
+            self.pattern_sequence.append((x,y))
 
     def append_text_input(self, text):
         if text != "":
-            self.sequence.append(text)
+            self.pattern_sequence.append(text)
 
     def on_press(self, key):
         try:
@@ -68,6 +68,12 @@ class SequenceCreator:
         except AttributeError:
             if key.name == 'space':
                 self.word += ' '
+
+    def sequence_exists(self):
+        if len(self.sequence) != 0:
+            return True
+        else:
+            return False
 
 class InputConverter:
     def __init__(self) -> None:
@@ -110,6 +116,9 @@ class Executor:
         self.internal_iterator = 0
         self.external_iterator = 0
         self.execution_sequences = []
+
+    def load_sequences(self, sequences):
+        self.execution_sequences = sequences
 
     def execute_next_step(self):        
         if not self.external_limit_reached():
