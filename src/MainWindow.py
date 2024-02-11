@@ -28,7 +28,7 @@ class MainWindow:
         root.mainloop()
 
     def configure_window_basis(self, root):
-        root.title("AutoClicker")
+        root.title("AutoClicker v1.0")
 
         root.call('wm', 'attributes', '.', '-topmost', '1')
 
