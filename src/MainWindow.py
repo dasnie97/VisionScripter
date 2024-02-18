@@ -39,7 +39,7 @@ class MainWindow:
         default_font.configure(size=default_font_size)
         root.option_add("*Font", default_font)
 
-        window_width = 300
+        window_width = 310
         window_height = 200
 
         # get the screen dimension
