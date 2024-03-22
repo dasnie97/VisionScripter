@@ -91,7 +91,7 @@ class InputConverter:
 
     def AppendRecord(self, line:str):
         line = line.strip()
-        splitted = line.split(' ')
+        splitted = line.split()
         exitTime = splitted[3]
         exitTime = exitTime.replace('.', ':')
         exitTime = self.AssureProperTimeFormat(exitTime)
