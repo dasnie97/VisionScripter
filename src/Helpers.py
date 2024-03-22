@@ -5,6 +5,7 @@ from pynput.keyboard import Listener as KeyboardListener
 from src.Models.Presence import Presence
 import pyautogui
 from pynput.keyboard import Controller
+import configparser
 
 class SequenceCreator:
     def __init__(self) -> None:
@@ -115,6 +116,12 @@ class Executor:
     def __init__(self) -> None:
         self.internal_iterator = 0
         self.external_iterator = 0
+        try:
+            self.internal_delay = float(read_configuration_field_from_file('config.ini', 'DelayBetweenSingleSteps'))
+            self.external_delay = float(read_configuration_field_from_file('config.ini', 'DelayBetweenSequences'))
+        except:
+            self.internal_delay = 0.01
+            self.external_delay = 1
         self.execution_sequences = []
 
     def load_sequences(self, sequences):
@@ -124,7 +131,9 @@ class Executor:
         if not self.external_limit_reached():
             self.execute_step()
             self.internal_iterator += 1
+            time.sleep(self.internal_delay)
             if self.internal_limit_reached():
+                time.sleep(self.external_delay)
                 self.move_to_next_sequence()
         
     def execute_step(self):
@@ -168,3 +177,8 @@ class Executor:
     def reset(self):
         self.internal_iterator = 0
         self.external_iterator = 0
+
+def read_configuration_field_from_file(file_name:str, field_name:str):
+    config = configparser.ConfigParser()
+    config.read(file_name)
+    return config['DEFAULT'][field_name]

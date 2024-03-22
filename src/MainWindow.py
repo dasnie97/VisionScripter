@@ -233,7 +233,6 @@ class MainWindow:
     def auto_clicker(self):
         while self.run_automatically:
             self.insert_record_button_click()
-            time.sleep(0.15)
             if self.executor.external_limit_reached():
                 self.auto_run_button["text"] = "Auto (F8)"
                 self.run_automatically = False
